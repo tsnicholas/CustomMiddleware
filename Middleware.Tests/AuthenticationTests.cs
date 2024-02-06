@@ -29,6 +29,16 @@ public class AuthenticationTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task MiddlewareTest_Authenticated() {
+        if(host == null) {
+            throw new Exception("host is null.");
+        }
+        var response = await host.GetTestClient().GetAsync("/?username=user1&password=password1");
+        var result = await response.Content.ReadAsStringAsync();
+        Assert.Equal("Authenticated!", result);
+    }
+
+    [Fact]
     public async Task MiddlewareTest_FailWhenNotAuthenticated()
     {
         if(host == null) {
@@ -65,12 +75,24 @@ public class AuthenticationTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task MiddlewareTest_Authenticated() {
+    public async Task MiddlewareTest_FailWhenWrongUser() {
         if(host == null) {
             throw new Exception("host is null.");
         }
-        var response = await host.GetTestClient().GetAsync("/?username=user1&password=password1");
+        var response = await host.GetTestClient().GetAsync("/?username=flithyfrank&password=password1");
+        Assert.NotEqual(HttpStatusCode.NotFound, response.StatusCode);
         var result = await response.Content.ReadAsStringAsync();
-        Assert.Equal("Authenticated!", result);
+        Assert.Equal("Failed!", result);
+    }
+
+    [Fact]
+    public async Task MiddlewareTest_FailWhenNoUser() {
+        if(host == null) {
+            throw new Exception("host is null.");
+        }
+        var response = await host.GetTestClient().GetAsync("/?password=password1");
+        Assert.NotEqual(HttpStatusCode.NotFound, response.StatusCode);
+        var result = await response.Content.ReadAsStringAsync();
+        Assert.Equal("Failed!", result);
     }
 }
