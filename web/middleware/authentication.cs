@@ -1,27 +1,37 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Thread.Tasks;
+using System.Threading.Tasks;
 
 namespace Web.Middleware 
 {
-    public class Authentication 
+    public class Authentication
     {
         private readonly RequestDelegate _next;
 
-        public MyMiddleware(RequestDelegate next) 
+        public Authentication(RequestDelegate next) 
         {
             _next = next;
         }
 
         public async Task InvokeAsync(HttpContext context) 
         {
-            if(context.Request.Query["username"] == "user1" && context.Request.Query["password"] == "password1") {
-                await Context.Request.HttpContext.Items.Add("userdetails", "user1 password1");
+            if(context.Request.Query["username"] == "user1" && context.Request.Query["password"] == "password1") 
+            {
+                context.Request.HttpContext.Items.Add("userdetails", "user1 password1");
                 await _next(context);
-            } else {
-                await context.Request.WriteAsync("Failed!");
+            } 
+            else 
+            {
+                await context.Response.WriteAsync("Failed!");
             }
+        }
+    }
+
+    public static class MiddlewareExtensions
+    {
+        public static IApplicationBuilder UseCustomAuthentication(this IApplicationBuilder builder) {
+            return builder.UseMiddleware<Authentication>();
         }
     }
 }
