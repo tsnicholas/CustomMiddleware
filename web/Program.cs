@@ -1,18 +1,8 @@
 using Web.Middleware;
 
-namespace Web;
+var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
 
-public class Program
-{
-    public static void Main(string[] args)
-    {
-        var builder = WebApplication.CreateBuilder(args);
-        var app = builder.Build();
-
-        app.MapGet("/", () => "Hello World!");
-        app.UseCustomAuthentication();
-        app.Run(async context => {
-            await context.Response.WriteAsync("User details: " + context.Request.HttpContext.Items["userdetails"]);
-        });
-    }
-}
+app.UseCustomAuthentication();
+app.MapGet("/", () => "Hello World!");
+app.Run();
